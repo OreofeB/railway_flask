@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)  
 
 # Load model
-# model_path = 'C:\\Users\\parkway\\Documents\\Python Code\\ML_Models\\LP_Models\\models\\dp_model.h5'
+# model_path = 'C:\\Users\\parkway\\Documents\\Python Code\\ML_Models\\LP_Models\\models\\dp_model_1.h5'
 model_path = 'dp_model.h5' 
 model = tf.keras.models.load_model(model_path)
 
