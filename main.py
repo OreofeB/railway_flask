@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)  
 
 # Load model
-model_path = 'dp_model_3.h5' 
+model_path = 'dp_model_6.h5' 
 model = tf.keras.models.load_model(model_path)
 
 # Preprocessing function
