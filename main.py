@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
-from datetime import datetime as dt  
+from datetime import datetime as dt
+import joblib
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -10,7 +11,7 @@ import os
 app = Flask(__name__)
 CORS(app)  
 
-# Load model
+# Load model & label encoder
 model_path_1 = 'dp_model_6.h5' 
 model_1 = tf.keras.models.load_model(model_path_1)
 
@@ -19,6 +20,8 @@ model_2 = tf.keras.models.load_model(model_path_2)
 
 model_path_3 = 'dp_model_3.h5' 
 model_3 = tf.keras.models.load_model(model_path_3)
+
+label_encoder = joblib.load('label_encoder.joblib')
 
 
 # Preprocessing function
@@ -40,9 +43,16 @@ def preprocess_data(data_df):
                          'selfie_bvn_check', 'selfie_id_check', 'device_name', 'mobile_os', 'os_version',
                          'no_of_dependent', 'employment_status','phone_network','bank']
 
-    label_encoder = LabelEncoder()
-    for column in columns_to_encode:
-        new_data[column] = label_encoder.fit_transform(new_data[column])
+    # Use label encoders for categorical variables
+    for column, le in label_encoder.items():
+        if column != 'status_id':
+            # Handle unseen labels
+            unknown_labels = set(new_data[column]) - set(le.classes_)
+            if unknown_labels:
+                print(f"Warning: Unseen labels in {column}: {unknown_labels}")
+                mode_value = le.classes_[np.argmax(np.bincount(le.transform(le.classes_)))]
+                new_data[column] = new_data[column].apply(lambda x: mode_value if x in unknown_labels else x)
+            new_data[column] = le.transform(new_data[column])
 
     def process_column(column):
         new_column = []
